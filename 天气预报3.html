@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>天气预报</title>
+    <link rel="stylesheet" href="css/index.css">
+    <script src="scripts/jquery.js"></script>
+    <script src="scripts/index.js"></script>
+    <script>
+        function getAPIName(pm25) {
+            var api;
+            if (pm25 <= 50) api = '空气优秀';
+            if (pm25 >= 51 && pm25 <= 100) api = '空气良好';
+            if (pm25 >= 101 && pm25 <= 150) api = '轻微污染';
+            if (pm25 >= 151 && pm25 <= 200) api = '轻度污染';
+            if (pm25 >= 201 && pm25 <= 300) api = '中度污染';
+            if (pm25 > 300) api = '重度污染';
+            if (pm25 > 500) api = '已爆表！';
+            return api;
+        }
+
+        function setData(index, data) {
+            var weather1 = data;
+            $(".item:nth-child(" + index + ") .week").text(weather1.date);
+            $(".item:nth-child(" + index + ") .icon").css({
+                "background-image": "url(" + weather1.dayPictureUrl + ")"
+            });
+            var temp1 = weather1.temperature.replace("℃", "") + "<sup>℃</sup>";
+            $(".item:nth-child(" + index + ") .temp").html(temp1);
+            $(".item:nth-child(" + index + ") .weather").text(weather1.weather);
+            $(".item:nth-child(" + index + ") .wind").text(weather1.wind);
+        }
+
+        $(document).ready(function () {
+            // 要访问的接口的地址  api=> application program interface应用程序接口  
+            // 接口就是数据的来源
+            var url = "https://api.map.baidu.com/telematics/v3/weather?location=郑州&output=json&ak=iw5m2G7ayDow8ofDdDGVUMB3&mcode=com.BaiduWeather&callback=?";
+            // 通过getJSON()方法，把url传递过去，获取数据信息，就保存到回调函数（匿名函数）中的形参data中。
+            // JSON= javascript simple object Notation  是一个轻量的级的数据交换格式。
+            $.getJSON(url, function (data) {
+                // 就是把获取到data绑定到相应的标签的内容区上。
+                console.log(data.results[0].currentCity);
+
+                data = data.results[0];
+                var weather = data.weather_data[0];
+
+                $("header").text(data.currentCity);
+
+                var imgURL = weather.dayPictureUrl;
+                $("main .icon").css({
+                    "background-image": "url(" + imgURL + ")"
+                })
+
+                var temp = weather.temperature.replace("℃", "") + "<sup>℃</sup>";
+                $("main .temp").html(temp);
+
+                $("main .weather").text(weather.weather);
+
+                $("main .wind").text(weather.wind);
+
+                // 获取数据中：字符所在索引
+                var index = weather.date.indexOf("：") + 1;
+                // 从索引的位置后截取到字符串末尾，再把小括号替换成空格。最终得到摄氏度
+                var currTemp = weather.date.substring(index).replace(")", "");
+                // 把数据重新拼接，形成完整的数据。
+                var current = "实时温度：" + currTemp + "，空气指数：" + data.pm25 + " " + getAPIName(data.pm25);
+                // 给标签赋值
+                $("main .current").text(current);
+
+                setData(1, data.weather_data[1]);
+
+                setData(2, data.weather_data[2]);
+
+                setData(3, data.weather_data[3]);
+            })
+        })
+    </script>
+</head>
+
+<body>
+    <header>
+        郑州市
+    </header>
+    <main>
+        <section class="icon"></section>
+        <section class="temp">-13 ~ 2
+            <sup>℃</sup>
+        </section>
+        <section class="weather">小雪</section>
+        <section class="wind">微风</section>
+        <section class="current">实时温度：13℃，空气指数 135 轻度污染</section>
+    </main>
+    <footer class="clearfix">
+        <section class="item">
+            <section class="week">周二</section>
+            <section class="icon"></section>
+            <section class="temp">-13 ~ 2
+                <sup>℃</sup>
+            </section>
+            <section class="weather">小雪</section>
+            <section class="wind">微风</section>
+        </section>
+        <section class="item">
+            <section class="week">周二</section>
+            <section class="icon"></section>
+            <section class="temp">-13 ~ 2
+                <sup>℃</sup>
+            </section>
+            <section class="weather">小雪</section>
+            <section class="wind">微风</section>
+        </section>
+        <section class="item">
+            <section class="week">周二</section>
+            <section class="icon"></section>
+            <section class="temp">-13 ~ 2
+                <sup>℃</sup>
+            </section>
+            <section class="weather">小雪</section>
+            <section class="wind">微风</section>
+        </section>
+    </footer>
+</body>
+
+</html>
